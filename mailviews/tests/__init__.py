@@ -1,3 +1,5 @@
+import django
+
 from django.conf import settings
 
 if not settings.configured:
@@ -40,6 +42,8 @@ from mailviews.tests.tests import *  # NOQA
 def run():
     import sys
     from django.test.utils import get_runner
+
+    django.setup()
 
     runner = get_runner(settings)()
     failures = runner.run_tests(('mailviews',))
