@@ -10,6 +10,7 @@ except ImportError:
     # Django <1.4 compat
     from django.conf.urls.defaults import patterns, include, url
 
+from django.apps import apps as app_registry
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import render
@@ -208,21 +209,17 @@ def autodiscover():
     """
     Imports all available previews classes.
     """
-    from django.conf import settings
-    for application in settings.INSTALLED_APPS:
-        module = import_module(application)
-
-        if module_has_submodule(module, 'emails'):
-            emails = import_module('%s.emails' % application)
+    for app_config in app_registry.get_app_configs():
+        if module_has_submodule(app_config.module, 'emails'):
+            emails = import_module('%s.emails' % app_config.name)
             try:
-                import_module('%s.emails.previews' % application)
+                import_module('%s.emails.previews' % app_config.name)
             except ImportError:
                 # Only raise the exception if this module contains previews and
                 # there was a problem importing them. (An emails module that
                 # does not contain previews is not an error.)
                 if module_has_submodule(emails, 'previews'):
                     raise
-
 
 #: The default preview site.
 site = PreviewSite()
