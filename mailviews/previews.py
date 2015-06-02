@@ -13,10 +13,11 @@ except ImportError:
 from django.apps import apps as app_registry
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.datastructures import SortedDict
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
+
 
 from mailviews.helpers import should_use_staticfiles
 from mailviews.utils import split_docstring, unimplemented
@@ -68,6 +69,9 @@ class PreviewSite(object):
             url(regex=r'^$',
                 view=self.list_view,
                 name='list'),
+            url(regex=r'^(?P<module>.+)/(?P<preview>.+)/send-test/$',
+                view=self.send_test_view,
+                name='send_test'),
             url(regex=r'^(?P<module>.+)/(?P<preview>.+)/$',
                 view=self.detail_view,
                 name='detail'),
@@ -102,6 +106,17 @@ class PreviewSite(object):
         except KeyError:
             raise Http404  # The provided module/preview does not exist in the index.
         return preview.detail_view(request)
+
+    def send_test_view(self, request, module, preview):
+        """
+        Looks up a preview in the index, returning a view response that
+        sends sends a test email before redirecting back to the detail view.
+        """
+        try:
+            preview = self.__previews[module][preview]
+        except KeyError:
+            raise Http404  # The provided module/preview does not exist in the index.
+        return preview.send_test_view(request)
 
 
 class Preview(object):
@@ -153,6 +168,27 @@ class Preview(object):
             'preview': type(self).__name__,
         })
 
+    @property
+    def send_test_url(self):
+        """
+        The URL to trigger sending of a test email.
+        """
+        return reverse('%s:send_test' % URL_NAMESPACE, kwargs={
+            'module': self.module,
+            'preview': type(self).__name__,
+        })
+
+    @staticmethod
+    def send_test_email(email_message, recipient):
+        """
+        Send an email for a rendered email message after overriding
+        the recipient(s) since this is for testing.
+        """
+        email_message.cc = []
+        email_message.bcc = []
+        email_message.to = [recipient]
+        email_message.send()
+
     def get_message_view(self, request, **kwargs):
         return self.message_view(**kwargs)
 
@@ -203,6 +239,45 @@ class Preview(object):
             pass
 
         return render(request, self.template_name, context)
+
+    def send_test_view(self, request):
+        """
+        Sends an actual email (as a test) for the preview's message view
+        """
+        test_recipient = request.GET.get('testRecipient')
+
+        # Remove testRecipient GET var before reconstructing detail URL
+        try:
+            get_vars_copy = request.GET.copy()
+            del get_vars_copy['testRecipient']
+        except KeyError:
+            pass
+
+        detail_view_redirect_url = '{0}?{1}'.format(self.url, get_vars_copy.urlencode())
+
+        # No test recipient --> Back to detail view
+        if not test_recipient:
+            return redirect(detail_view_redirect_url)
+
+        kwargs = {}
+        if self.form_class:
+            if request.GET:
+                form = self.form_class(data=request.GET)
+            else:
+                form = self.form_class()
+
+            # Shouldn't happen, but just incase, send back to detail view
+            if not form.is_bound or not form.is_valid():
+                return redirect(detail_view_redirect_url)
+
+            kwargs.update(form.get_message_view_kwargs())
+
+        message_view = self.get_message_view(request, **kwargs)
+        message = message_view.render_to_message()
+
+        self.send_test_email(message, test_recipient)
+
+        return redirect(detail_view_redirect_url)
 
 
 def autodiscover():

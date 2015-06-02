@@ -77,6 +77,15 @@
                 {% endfor %}
             </table>
 
+            <form action="{{ preview.send_test_url }}" method="get">
+                {% for name, value in request.GET.items %}
+                <input type="hidden" name="{{ name }}" value="{{ value }}" />
+                {% endfor %}
+                <input type="submit" class="btn btn-danger" value="Send test to" />
+                <input type="text" class="testRecipient" name="testRecipient"
+                    value="{% if request.user and request.user.is_authenticated and request.user.email %}{{ request.user.email }}{% endif %}"/>
+            </form>
+
         </div>
 
     </header>

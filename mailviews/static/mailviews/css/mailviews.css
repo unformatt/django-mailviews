@@ -63,3 +63,5 @@ section:last-child {
 .errorlist li {
     color: #900;
 }
+
+input.testRecipient {margin: 0 0 0 10px;}
