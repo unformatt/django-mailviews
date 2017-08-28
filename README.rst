@@ -18,10 +18,10 @@ Basic Usage
 
 .. code:: python
 
-    from mailviews.messages import EmailMessageView
+    from mailviews.messages import TemplatedEmailMessageView
 
-    # Subclass the `EmailMessageView`, adding the templates you want to render.
-    class WelcomeMessageView(EmailMessageView):
+    # Subclass the `TemplatedEmailMessageView`, adding the templates you want to render.
+    class WelcomeMessageView(TemplatedEmailMessageView):
         subject_template_name = 'emails/welcome/subject.txt'
         body_template_name = 'emails/welcome/body.txt'
 
@@ -87,16 +87,16 @@ Best Practices
 --------------
 
 * Try and avoid using the ``extra_context`` argument when sending emails.
-  Instead, create an ``EmailMessageView`` subclass whose constructor accepts
+  Instead, create an ``TemplatedEmailMessageView`` subclass whose constructor accepts
   as arguments all of the objects that you require to generate the context and
   send the message. For example, the code shown in "Basic Usage" could written
   instead as the following:
 
 .. code:: python
 
-    from mailviews.messages import EmailMessageView
+    from mailviews.messages import TemplatedEmailMessageView
 
-    class WelcomeMessageView(EmailMessageView):
+    class WelcomeMessageView(TemplatedEmailMessageView):
         subject_template_name = 'emails/welcome/subject.txt'
         body_template_name = 'emails/welcome/body.txt'
 
@@ -124,17 +124,53 @@ user-related emails. (This is left as an exercise for the reader.)
 Testing and Development
 -----------------------
 
-Tested on Python 2.6 and 2.7, as well as Django 1.3, 1.4, and 1.5.
+Tested on Python 2.6, 2.7 and 3.4 (where supported by Django) and Django
+versions 1.3 through 1.8. (For specific versions supported, see the Travis or
+Tox build matrices.) To run tests against the entire build matrix locally, run
+``make test-matrix`` (or ``tox``, if already installed.)
 
-To run the test suite against your installed Django version, run
-``python setup.py test``, or ``make test``. (If Django isn't already installed,
-the latest stable version will be installed.)
+Development
+~~~~~~~~~~~
+
+To install the project in development mode, run:
+
+.. code:: shell
+
+    make develop
+
+This installs dependencies, as well as builds static assets.
+
+Testing
+~~~~~~~
+
+To run the test suite against your installed Django version, run:
+
+.. code:: shell
+
+    python -m mailviews.tests
+
+To view an example preview site, you can start a test server by running:
+
+.. code:: shell
+
+    python -m mailviews.tests.manage runserver
+
+Integration with Third-Party Applications
+`````````````````````````````````````````
 
 All tests will automatically be run using the Django test runner when you run
 the tests for your own projects if you use ``python manage.py test`` and
 ``mailviews`` is within your ``settings.INSTALLED_APPS``.
 
-To run tests against the entire build matrix, run ``make test-matrix``.
 
-To view an example preview site, you can start a test server by running
-``make test-server`` and visiting http://127.0.0.1:8000/.
+Coverage
+~~~~~~~~
+
+To generate a Coverage report using coverage.py_, run:
+
+.. code:: shell
+
+    coverage run --source=. -m mailviews.tests
+
+
+.. _coverage.py: https://pypi.python.org/pypi/coverage/
