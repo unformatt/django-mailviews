@@ -4,11 +4,7 @@ from base64 import b64encode
 from collections import namedtuple
 from email.header import decode_header
 
-try:
-    from django.conf.urls import patterns, include, url
-except ImportError:
-    # Django <1.4 compat
-    from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import include, url
 
 from django.apps import apps as app_registry
 from django.core.urlresolvers import reverse
@@ -74,7 +70,7 @@ class PreviewSite(object):
 
     @property
     def urls(self):
-        urlpatterns = patterns('',
+        urlpatterns = [
             url(regex=r'^$',
                 view=self.list_view,
                 name='list'),
@@ -84,17 +80,17 @@ class PreviewSite(object):
             url(regex=r'^(?P<module>.+)/(?P<preview>.+)/$',
                 view=self.detail_view,
                 name='detail'),
-        )
+        ]
 
         if not should_use_staticfiles():
-            urlpatterns += patterns('',
+            urlpatterns += [
                 url(regex=r'^static/(?P<path>.*)$',
                     view='django.views.static.serve',
                     kwargs={
                         'document_root': os.path.join(os.path.dirname(__file__), 'static'),
                     },
                     name='static'),
-                )
+            ]
 
         return include(urlpatterns, namespace=URL_NAMESPACE)
 
