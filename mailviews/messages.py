@@ -34,7 +34,7 @@ class EmailMessageView(object):
 
         :rtype: :class:`django.template.Context`
         """
-        return Context(kwargs)
+        return kwargs
 
     def render_to_message(self, extra_context=None, **kwargs):
         """
@@ -158,7 +158,7 @@ class TemplatedEmailMessageView(EmailMessageView):
         :returns: A rendered subject.
         :rtype: :class:`str`
         """
-        rendered = self.subject_template.render(unescape(context))
+        rendered = self.subject_template.render(Context(unescape(context)))
         return rendered.strip()
 
     def render_body(self, context):

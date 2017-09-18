@@ -1,7 +1,7 @@
 import textwrap
 from collections import namedtuple
 
-from django.template import Context
+from django.utils.safestring import mark_safe
 
 
 Docstring = namedtuple('Docstring', ('summary', 'body'))
@@ -13,7 +13,8 @@ def split_docstring(value):
 
     :returns: a 2-tuple of the format ``(summary, body)``
     """
-    docstring = textwrap.dedent(getattr(value, '__doc__', ''))
+    docstring = getattr(value, '__doc__', '') or ''
+    docstring = textwrap.dedent(docstring)
     if not docstring:
         return None
 
@@ -37,4 +38,7 @@ def unescape(context):
     Useful for rendering plain-text templates without having to wrap the entire
     template in an `{% autoescape off %}` tag.
     """
-    return Context(context, autoescape=False)
+    for key in context:
+        if type(context[key]) is str:
+            context[key] = mark_safe(context)
+    return context
