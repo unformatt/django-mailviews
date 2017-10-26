@@ -9,7 +9,7 @@ from django.conf.urls import include, url
 from django.apps import apps as app_registry
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 try:
     from collections import OrderedDict
