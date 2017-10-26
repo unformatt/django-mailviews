@@ -40,5 +40,5 @@ def unescape(context):
     """
     for key in context:
         if type(context[key]) is str:
-            context[key] = mark_safe(context)
+            context[key] = mark_safe(context[key])
     return context
