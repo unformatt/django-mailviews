@@ -1,6 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail.message import EmailMessage, EmailMultiAlternatives
-from django.template import Context
 from django.template.loader import get_template, select_template
 
 from mailviews.utils import unescape
@@ -32,7 +31,7 @@ class EmailMessageView(object):
         """
         Returns the context that will be used for rendering this message.
 
-        :rtype: :class:`django.template.Context`
+        :rtype: :class:`dict`
         """
         return kwargs
 
@@ -154,11 +153,11 @@ class TemplatedEmailMessageView(EmailMessageView):
         entities in ``text/plain`` content.
 
         :param context: The context to use when rendering the subject template.
-        :type context: :class:`~django.template.Context`
+        :type dict: :class:`dict`
         :returns: A rendered subject.
         :rtype: :class:`str`
         """
-        rendered = self.subject_template.render(Context(unescape(context)))
+        rendered = self.subject_template.render(unescape(context))
         return rendered.strip()
 
     def render_body(self, context):
@@ -169,7 +168,7 @@ class TemplatedEmailMessageView(EmailMessageView):
         entities in ``text/plain`` content.
 
         :param context: The context to use when rendering the body template.
-        :type context: :class:`~django.template.Context`
+        :type dict: :class:`dict`
         :returns: A rendered body.
         :rtype: :class:`str`
         """
@@ -214,7 +213,7 @@ class TemplatedHTMLEmailMessageView(TemplatedEmailMessageView):
         Renders the message body for the given context.
 
         :param context: The context to use when rendering the body template.
-        :type context: :class:`~django.template.Context`
+        :type dict: :class:`dict`
         :returns: A rendered HTML body.
         :rtype: :class:`str`
         """
