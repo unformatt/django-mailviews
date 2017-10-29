@@ -39,6 +39,6 @@ def unescape(context):
     template in an `{% autoescape off %}` tag.
     """
     for key in context:
-        if type(context[key]) is str:
+        if type(context[key]) in [str, unicode]:
             context[key] = mark_safe(context[key])
     return context
