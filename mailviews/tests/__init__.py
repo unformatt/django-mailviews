@@ -45,12 +45,4 @@ from mailviews.tests.tests import *  # NOQA
 if __name__ == '__main__':
     from mailviews.tests.__main__ import __main__
 
-<<<<<<< HEAD
-    django.setup()
-
-    runner = get_runner(settings)()
-    failures = runner.run_tests(('mailviews',))
-    sys.exit(failures)
-=======
     __main__()
->>>>>>> e3f4adbea04a134e485624077c0194d48f1b646f
