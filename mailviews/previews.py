@@ -92,7 +92,7 @@ class PreviewSite(object):
                     name='static'),
             ]
 
-        return include(urlpatterns, namespace=URL_NAMESPACE)
+        return include((urlpatterns, URL_NAMESPACE), namespace=URL_NAMESPACE)
 
     def list_view(self, request):
         """
