@@ -11,8 +11,8 @@ register = template.Library()
 
 def mailviews_static(path):
     if should_use_staticfiles():
-        from django.contrib.staticfiles.templatetags import staticfiles
-        return staticfiles.static(path)
+        from django.templatetags.static import static
+        return static(path)
     else:
         from django.urls import reverse
         return reverse('%s:static' % URL_NAMESPACE, kwargs={
