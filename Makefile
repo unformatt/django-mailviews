@@ -12,7 +12,7 @@ $(LESSC):
 
 bootstrap: $(LESSC)
 	git submodule update --init
-	$(LESSC) vendor/bootstrap/less/bootstrap.less > $(STATIC_DIRECTORY)/css/bootstrap.css
+	$(LESSC) vendor/bootstrap/less/bootstrap.less $(STATIC_DIRECTORY)/css/bootstrap.css
 	cp vendor/bootstrap/js/bootstrap-*.js $(STATIC_DIRECTORY)/javascript
 	cp vendor/bootstrap/img/* $(STATIC_DIRECTORY)/img
 
